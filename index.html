@@ -13,9 +13,9 @@
         </svg>
         <script>
             let data;
-            
+
             async function init() {
-                const data = await d3.csv("https://flunky.github.io/cars2017.csv");
+                data = await d3.csv("https://flunky.github.io/cars2017.csv");
                 update();
             }
 
@@ -65,7 +65,7 @@
                     .enter().append("circle")
                     .attr("cx", d => xScale(parseFloat(d['AverageCityMPG'])))
                     .attr("cy", d => yScale(parseFloat(d['AverageHighwayMPG'])))
-                    .attr("r", d => 6)
+                    .attr("r", 6)
                     .style("fill", d => {
                         if (d['Fuel'] === 'Gasoline') return 'black';
                         else return 'green';
