@@ -37,12 +37,23 @@
                     .tickValues([10, 20, 50, 100])
                     .tickFormat(d3.format("~s"));
 
+                // Filter data based on selected cylinders and fuel type
+                    const filteredData = data.filter(d => {
+                        const fuel = d['Fuel'];
+                        const cylinders = d['EngineCylinders'];
+                        return (fuel !== 'Electricity') && (selectedCylinders === 'all' || cylinders == selectedCylinders);
+                    });
+
                 svg.selectAll("circle")
                     .data(data)
                     .enter().append("circle")
                     .attr("cx", d => xScale(parseFloat(d['AverageCityMPG'])))
                     .attr("cy", d => yScale(parseFloat(d['AverageHighwayMPG'])))
                     .attr("r", d => 2 + parseInt(d['EngineCylinders']))
+                    .style("fill", d => {
+                        if (d['Fuel'] === 'Gasoline') return 'black';
+                        else return 'green';
+                    });
 
                 svg.append("g")
                     .attr("class", "x axis")
