@@ -37,20 +37,20 @@
                     .attr("transform", `translate(${margin},${margin})`);
 
                 // Define scales and axes
-                const xScale = d3.scaleLog()
-                    .domain([10, 150])
+                const xScale = d3.scaleLinear()
+                    .domain([0, 60])
                     .range([0, width]);
 
-                const yScale = d3.scaleLog()
-                    .domain([10, 150])
+                const yScale = d3.scaleLinear()
+                    .domain([0, 60])
                     .range([height, 0]);
 
                 const xAxis = d3.axisBottom(xScale)
-                    .tickValues([10, 20, 50, 100])
+                    .tickValues([0, 20, 40, 60])
                     .tickFormat(d3.format("~s"));
 
                 const yAxis = d3.axisLeft(yScale)
-                    .tickValues([10, 20, 50, 100])
+                    .tickValues([0, 20, 40, 60])
                     .tickFormat(d3.format("~s"));
 
                 // Filter data based on selected cylinders and fuel type
@@ -65,9 +65,9 @@
                     .enter().append("circle")
                     .attr("cx", d => xScale(parseFloat(d['AverageCityMPG'])))
                     .attr("cy", d => yScale(parseFloat(d['AverageHighwayMPG'])))
-                    .attr("r", 6)
+                    .attr("r", 3)
                     .style("fill", d => {
-                        if (d['Fuel'] === 'Gasoline') return 'black';
+                        if (d['Fuel'] === 'Gasoline') return 'red';
                         else return 'green';
                     });
 
