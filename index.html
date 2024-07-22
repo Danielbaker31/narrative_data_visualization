@@ -12,6 +12,8 @@
         <svg width=300 height=300>
         </svg>
         <script>
+            let data;
+            
             async function init() {
                 const data = await d3.csv("https://flunky.github.io/cars2017.csv");
                 update();
@@ -24,6 +26,8 @@
                 const margin = 50;
                 const width = 300 - 2*margin;
                 const height = 300 - 2*margin;
+
+                d3.select("svg").selectAll("*").remove();
 
                 // Create SVG element
                 const svg = d3.select("svg")
@@ -57,11 +61,11 @@
                     });
 
                 svg.selectAll("circle")
-                    .data(data)
+                    .data(filteredData)
                     .enter().append("circle")
                     .attr("cx", d => xScale(parseFloat(d['AverageCityMPG'])))
                     .attr("cy", d => yScale(parseFloat(d['AverageHighwayMPG'])))
-                    .attr("r", d => 2 + parseInt(d['EngineCylinders']))
+                    .attr("r", d => 6)
                     .style("fill", d => {
                         if (d['Fuel'] === 'Gasoline') return 'black';
                         else return 'green';
