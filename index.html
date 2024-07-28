@@ -1,26 +1,137 @@
 <html>
     <script src='https://d3js.org/d3.v5.min.js'></script>
-    <style> circle {fill: grey; stroke: black;} </style>
+    <style> 
+        circle {fill: grey; stroke: black;} 
+        #slider-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        #slides {
+            display: flex;
+            overflow: hidden;
+            width: 250px;
+            justify-content: center;
+        }
+        .slide {
+            display: none;
+            width: 250px;
+            padding: 5px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .slide.active {
+            display: block;
+        }
+        button {
+            padding: 10px 20px;
+            border: 1px solid #ccc;
+            background-color: #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 0 10px;
+        }
+        button:hover {
+            background-color: #ddd;
+        }
+        #svg-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 600px; /* Adjust height as needed */
+        }
+        #tooltip {
+            position: absolute;
+            visibility: hidden;
+            background-color: white;
+            border: 1px solid black;
+            padding: 5px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .popup {
+            min-width: 50px;
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.3s;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .slide.active .popup {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
     <body onload='init()'>
-        <label for="cylinders">Select number of cylinders: </label>
-        <select id="cylinders" onchange="update()">
-          <option value="all">All</option>
-          <option value="4">4</option>
-          <option value="6">6</option>
-          <option value="8">8</option>
-        </select>
-        <svg width=600 height=600>
+        <div id="slider-container">
+            <button onclick="prevSlide()">Previous</button>
+            <div id="slides">
+                <div class="slide" data-value="3">3 Cylinders</div>
+                <div class="slide" data-value="4">4 Cylinders</div>
+                <div class="slide" data-value="6" data-popup-xOffset="-40", data-popup-yOffset="-20">6 Cylinders
+                    <div class="popup">Average MPG trends down<br>as the number of engine <br>cylinders increases</div>
+                </div>
+                <div class="slide" data-value="8">8 Cylinders</div>
+                <div class="slide" data-value="12" data-popup-xOffset="-130", data-popup-yOffset="75">12 Cylinders
+                    <div class="popup">12 cylinder cars have<br>the worst MPG, however<br>these tend to be supercars</div>
+                </div>
+                <div class="slide" data-value="all">All</div>
+            </div>
+            <button onclick="nextSlide()">Next</button>
+        </div>
+        <div id="svg-container"><svg width=600 height=600></svg></div>
+        <div id="tooltip" style="position: absolute; visibility: hidden; background-color: white; border: 1px solid black; padding: 5px;"></div>
         </svg>
         <script>
             let data;
+            let currentSlideIndex = 0;
 
             async function init() {
                 data = await d3.csv("https://flunky.github.io/cars2017.csv");
+                showSlide(currentSlideIndex);
+                update();
+            }
+
+            function showSlide(index) {
+                const slides = document.querySelectorAll(".slide");
+                slides.forEach((slide, i) => {
+                    slide.classList.toggle("active", i === index);
+                    if (i === index && (i == 2 || i == 4)) {
+                        const popup = slide.querySelector(".popup");
+                        const svgContainer = document.getElementById("svg-container");
+                        const svgRect = svgContainer.getBoundingClientRect();
+                        const centerX = svgRect.width / 2;
+                        const centerY = svgRect.height / 2;
+                        const popupX = svgRect.left + centerX + parseInt(slide.getAttribute("data-popup-xOffset"));
+                        const popupY = svgRect.top + centerY + parseInt(slide.getAttribute("data-popup-yOffset"));
+                        popup.style.left = `${popupX}px`;
+                        popup.style.top = `${popupY}px`;
+            }
+                });
+            }
+
+            function prevSlide() {
+                currentSlideIndex = (currentSlideIndex > 0) ? currentSlideIndex - 1 : 0;
+                showSlide(currentSlideIndex);
+                update();
+            }
+
+            function nextSlide() {
+                const slides = document.querySelectorAll(".slide");
+                currentSlideIndex = (currentSlideIndex < slides.length - 1) ? currentSlideIndex + 1 : slides.length - 1;
+                showSlide(currentSlideIndex);
                 update();
             }
 
             function update() {
-                const selectedCylinders = document.getElementById("cylinders").value;
+                const slides = document.querySelectorAll(".slide");
+                const selectedCylinders = slides[currentSlideIndex].getAttribute("data-value");
 
                 // Set up the SVG dimensions and margins
                 const margin = 50;
@@ -63,6 +174,8 @@
                         if (a['EngineCylinders'] != selectedCylinders && b['EngineCylinders'] == selectedCylinders) return -1;
                         return 0;
                     });
+                
+                const tooltip = d3.select("#tooltip");
 
                 svg.selectAll("circle")
                     .data(filteredData)
@@ -70,6 +183,7 @@
                     .attr("cx", d => xScale(parseFloat(d['AverageCityMPG'])))
                     .attr("cy", d => yScale(parseFloat(d['AverageHighwayMPG'])))
                     .attr("r", d => {
+
                         if (d['EngineCylinders'] == selectedCylinders || selectedCylinders === 'all') return 5;
                         else return 3;
                     })
@@ -81,6 +195,19 @@
                             return 'grey';
                         }
                     })
+                    .on("mouseover", function(d) {
+                        if (d['EngineCylinders'] == selectedCylinders || selectedCylinders == 'all') {
+                            tooltip.style("visibility", "visible")
+                            .html(`Make: ${d['Make']}<br>Average City MPG: ${d['AverageCityMPG']}<br>Average Highway MPG: ${d['AverageHighwayMPG']}`);
+                        }
+                    })
+                    .on("mousemove", function() {
+                        tooltip.style("top", (d3.event.pageY - 10) + "px")
+                            .style("left", (d3.event.pageX + 10) + "px");
+                    })
+                    .on("mouseout", function () {
+                        tooltip.style("visibility", "hidden");
+                    });
 
                 svg.append("g")
                     .attr("class", "x axis")
@@ -116,6 +243,33 @@
                     .attr("x", width / 2)
                     .attr("y", -margin / 2)
                     .text("Average MPG for Cars with Various Engine Cylinders");
+
+                // Legend
+                const legend = svg.append("g")
+                    .attr("class", "legend")
+                    .attr("transform", `translate(${width - 100}, ${height - 100})`);
+
+                legend.append("circle")
+                    .attr("cx", 0)
+                    .attr("cy", 0)
+                    .attr("r", 5)
+                    .style("fill", "red");
+
+                legend.append("text")
+                    .attr("x", 10)
+                    .attr("y", 5)
+                    .text("Gasoline Engine");
+
+                legend.append("circle")
+                    .attr("cx", 0)
+                    .attr("cy", 20)
+                    .attr("r", 5)
+                    .style("fill", "green");
+
+                legend.append("text")
+                    .attr("x", 10)
+                    .attr("y", 25)
+                    .text("Diesel Engine");
             }
 
         </script>
