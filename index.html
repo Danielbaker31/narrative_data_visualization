@@ -72,13 +72,13 @@
         <div id="slider-container">
             <button onclick="prevSlide()">Previous</button>
             <div id="slides">
-                <div class="slide" data-value="3">3 Cylinders</div>
-                <div class="slide" data-value="4">4 Cylinders</div>
-                <div class="slide" data-value="6" data-popup-xOffset="-40", data-popup-yOffset="-20">6 Cylinders
+                <div class="slide" data-value="3">3 Engine Cylinders</div>
+                <div class="slide" data-value="4">4 Engine Cylinders</div>
+                <div class="slide" data-value="6" data-popup-xOffset="-40", data-popup-yOffset="-20">6 Engine Cylinders
                     <div class="popup">Average MPG trends down<br>as the number of engine <br>cylinders increases</div>
                 </div>
-                <div class="slide" data-value="8">8 Cylinders</div>
-                <div class="slide" data-value="12" data-popup-xOffset="-130", data-popup-yOffset="75">12 Cylinders
+                <div class="slide" data-value="8">8 Engine Cylinders</div>
+                <div class="slide" data-value="12" data-popup-xOffset="-130", data-popup-yOffset="75">12 Engine Cylinders
                     <div class="popup">12 cylinder cars have<br>the worst MPG, however<br>these tend to be supercars</div>
                 </div>
                 <div class="slide" data-value="all">All</div>
@@ -242,7 +242,7 @@
                     .attr("text-anchor", "middle")
                     .attr("x", width / 2)
                     .attr("y", -margin / 2)
-                    .text("Average MPG for Cars with Various Engine Cylinders");
+                    .text("Average MPG for Cars with Various Numbers of Engine Cylinders");
 
                 // Legend
                 const legend = svg.append("g")
