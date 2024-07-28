@@ -8,6 +8,9 @@
             justify-content: center;
             margin-bottom: 20px;
         }
+        circle.dimmed {
+            opacity: 0.5;
+        }
         #slides {
             display: flex;
             overflow: hidden;
@@ -62,7 +65,6 @@
             opacity: 0;
             pointer-events: none;
         }
-
         .slide.active .popup {
             opacity: 1;
             pointer-events: auto;
@@ -197,6 +199,7 @@
                     })
                     .on("mouseover", function(d) {
                         if (d['EngineCylinders'] == selectedCylinders || selectedCylinders == 'all') {
+                            d3.select(this).classed("dimmed", true);
                             tooltip.style("visibility", "visible")
                             .html(`Make: ${d['Make']}<br>Average City MPG: ${d['AverageCityMPG']}<br>Average Highway MPG: ${d['AverageHighwayMPG']}`);
                         }
@@ -206,6 +209,7 @@
                             .style("left", (d3.event.pageX + 10) + "px");
                     })
                     .on("mouseout", function () {
+                        d3.select(this).classed("dimmed", false);
                         tooltip.style("visibility", "hidden");
                     });
 
